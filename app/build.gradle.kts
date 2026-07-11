@@ -39,6 +39,20 @@ if (!debugKeystoreFile.exists()) {
     debugKeystoreFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
 }
 
+val detectedStoreType = run {
+    if (debugKeystoreFile.exists() && debugKeystoreFile.length() > 4) {
+        val bytes = ByteArray(4)
+        debugKeystoreFile.inputStream().use { it.read(bytes) }
+        if (bytes[0] == 0xFE.toByte() && bytes[1] == 0xED.toByte() && bytes[2] == 0xFE.toByte() && bytes[3] == 0xED.toByte()) {
+            "jks"
+        } else {
+            "pkcs12"
+        }
+    } else {
+        "pkcs12"
+    }
+}
+
 android {
   namespace = "com.example"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
@@ -62,12 +76,14 @@ android {
       storePassword = "android"
       keyAlias = "androiddebugkey"
       keyPassword = "android"
+      storeType = detectedStoreType
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")
       storePassword = "android"
       keyAlias = "androiddebugkey"
       keyPassword = "android"
+      storeType = detectedStoreType
     }
   }
 
