@@ -97,6 +97,16 @@ android {
   testOptions { unitTests { isIncludeAndroidResources = true } }
 }
 
+// Ensure .env and .env.example exist so Secrets Gradle Plugin doesn't fail the build
+val envFile = file("${rootDir}/.env")
+if (!envFile.exists()) {
+    envFile.writeText("GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE\n")
+}
+val envExampleFile = file("${rootDir}/.env.example")
+if (!envExampleFile.exists()) {
+    envExampleFile.writeText("GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE\n")
+}
+
 secrets {
   propertiesFileName = ".env"
   defaultPropertiesFileName = ".env.example"
